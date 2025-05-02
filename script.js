@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const matchIdInput = document.getElementById('match-id-input');
     const loadMatchButton = document.getElementById('load-match-button');
     const resetButton = document.getElementById('reset-button');
+    const increaseFontButton = document.getElementById('increase-font-button');
+    const decreaseFontButton = document.getElementById('decrease-font-button');
 
     const scoreAElement = document.getElementById('score-a');
     const teamNameAElement = document.getElementById('team-name-a');
@@ -16,12 +18,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const POLLING_INTERVAL = 5000; // 5 seconds
     const HOSTNAME_STORAGE_KEY = 'scoreboard_hostname';
+    const FONT_SIZE_FACTOR_STORAGE_KEY = 'scoreboard_font_size_factor';
+    const FONT_SIZE_STEP = 0.05; // Smaller step for finer control
+    const MIN_FONT_FACTOR = 0.5;
+    const MAX_FONT_FACTOR = 1.5; // Adjust max as needed
 
     let currentMatchId = null;
     let currentHostname = null;
     let pollingIntervalId = null;
     let wakeLock = null;
     let retryTimeoutId = null;
+    let scoreFontSizeFactor = 1.0; // Default factor
 
     // --- Local Storage ---
     const getStoredHostname = () => {
@@ -31,6 +38,49 @@ document.addEventListener('DOMContentLoaded', () => {
     const storeHostname = (hostname) => {
         localStorage.setItem(HOSTNAME_STORAGE_KEY, hostname);
     };
+
+    const getStoredFontSizeFactor = () => {
+        const stored = localStorage.getItem(FONT_SIZE_FACTOR_STORAGE_KEY);
+        // Ensure it's within bounds if loaded
+        if (stored) {
+            const factor = parseFloat(stored);
+            if (!isNaN(factor) && factor >= MIN_FONT_FACTOR && factor <= MAX_FONT_FACTOR) {
+                return factor;
+            }
+        }
+        return 1.0; // Default if not stored or invalid
+    };
+
+    const storeFontSizeFactor = (factor) => {
+        localStorage.setItem(FONT_SIZE_FACTOR_STORAGE_KEY, factor);
+    };
+
+    // --- Font Size Adjustment ---
+    const applyFontSizeFactor = () => {
+        document.documentElement.style.setProperty('--score-font-size-factor', scoreFontSizeFactor);
+        console.log(`Applied font size factor: ${scoreFontSizeFactor}`);
+    };
+
+    const increaseFontSize = () => {
+        if (scoreFontSizeFactor < MAX_FONT_FACTOR) {
+            scoreFontSizeFactor = parseFloat((scoreFontSizeFactor + FONT_SIZE_STEP).toFixed(2)); // Avoid floating point issues
+            // Clamp to max just in case
+            if (scoreFontSizeFactor > MAX_FONT_FACTOR) scoreFontSizeFactor = MAX_FONT_FACTOR;
+            applyFontSizeFactor();
+            storeFontSizeFactor(scoreFontSizeFactor);
+        }
+    };
+
+    const decreaseFontSize = () => {
+         if (scoreFontSizeFactor > MIN_FONT_FACTOR) {
+            scoreFontSizeFactor = parseFloat((scoreFontSizeFactor - FONT_SIZE_STEP).toFixed(2)); // Avoid floating point issues
+             // Clamp to min just in case
+            if (scoreFontSizeFactor < MIN_FONT_FACTOR) scoreFontSizeFactor = MIN_FONT_FACTOR;
+            applyFontSizeFactor();
+            storeFontSizeFactor(scoreFontSizeFactor);
+        }
+    };
+
 
     // --- Screen Wake Lock ---
     const requestWakeLock = async () => {
@@ -213,6 +263,9 @@ document.addEventListener('DOMContentLoaded', () => {
         displayStartError(''); // Clear previous errors
         console.log(`Loading match ID: ${currentMatchId} from host: ${currentHostname}`);
 
+        // Apply the current/stored font size factor *before* showing the screen
+        applyFontSizeFactor();
+
         // Show scoreboard immediately (fetch will update it)
         // Reset scores visually while loading
         updateScoreboard({ live_A: '?', team_A_name: 'Loading...', live_B: '?', team_B_name: 'Loading...' });
@@ -246,6 +299,9 @@ document.addEventListener('DOMContentLoaded', () => {
          validateInputs(); // Re-validate after potentially filling hostname
     });
 
+    increaseFontButton.addEventListener('click', increaseFontSize);
+    decreaseFontButton.addEventListener('click', decreaseFontSize);
+
     // Prevent form submission if wrapped in a form (though not currently in a form)
     const handleEnter = (e) => {
          if (e.key === 'Enter') {
@@ -260,10 +316,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Initial Setup ---
+    // Load stored values
     const storedHostname = getStoredHostname();
     if (storedHostname) {
         hostnameInput.value = storedHostname;
     }
+    scoreFontSizeFactor = getStoredFontSizeFactor(); // Load stored font size factor
+    applyFontSizeFactor(); // Apply the initial factor immediately
+
     validateInputs(); // Initial validation to set button state
     switchScreen(startScreen); // Show start screen by default
 

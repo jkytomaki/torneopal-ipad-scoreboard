@@ -8,6 +8,7 @@
     --disabled-button-bg: #cccccc;
     --disabled-button-text: #666666;
     --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --score-font-size-factor: 1; /* Default factor for score font size scaling */
 }
 
 * {
@@ -123,7 +124,7 @@ html, body {
 
 /* Scoreboard Screen Styles */
 #scoreboard-screen {
-    position: relative; /* For reset button positioning */
+    position: relative; /* For absolute positioning of children */
     background-color: #000; /* Default background */
     color: var(--text-color);
     justify-content: stretch; /* Stretch children vertically */
@@ -157,10 +158,12 @@ html, body {
 }
 
 .score {
-    font-size: clamp(10vw, 25vh, 300px); /* Responsive font size */
+    /* Use calc() to multiply the base clamp value by the factor */
+    font-size: calc(clamp(10vw, 25vh, 300px) * var(--score-font-size-factor));
     font-weight: bold;
     line-height: 1;
     margin-bottom: 0.1em;
+    transition: font-size 0.2s ease-in-out; /* Smooth transition for size change */
 }
 
 .team-name {
@@ -183,6 +186,28 @@ html, body {
     z-index: 10;
 }
 
+.controls-bottom-left {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    z-index: 10;
+}
+
+.font-adjust-button {
+    padding: 8px 12px;
+    font-size: 1.2em;
+    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    min-width: 40px; /* Ensure buttons have a decent size */
+    text-align: center;
+}
+
 .error-message {
     color: var(--error-color);
     background-color: rgba(0, 0, 0, 0.5);
@@ -191,7 +216,7 @@ html, body {
     margin-top: 10px;
     font-weight: bold;
     position: absolute; /* Position error messages */
-    bottom: 60px; /* Above reset button */
+    bottom: 60px; /* Above reset/font buttons */
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;
@@ -208,8 +233,8 @@ html, body {
 /* Landscape adjustments (optional, Flexbox handles basic layout) */
 @media (orientation: landscape) {
     .score {
-       /* Adjust font size if needed for landscape */
-       font-size: clamp(10vh, 25vw, 300px);
+       /* Adjust font size if needed for landscape - base clamp handles this */
+       /* font-size: calc(clamp(10vh, 25vw, 300px) * var(--score-font-size-factor)); */
     }
     .team-name {
        /* Adjust font size if needed for landscape */
