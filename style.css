@@ -165,7 +165,7 @@ html, body {
     font-weight: bold;
     line-height: 1;
     margin-bottom: 0.1em;
-    transition: font-size 0.2s ease-in-out; /* Smooth transition for size change */
+    /* transition: font-size 0.2s ease-in-out; */ /* Removed transition to test zoom glitch */
 }
 
 .team-name {
