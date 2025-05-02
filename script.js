@@ -63,23 +63,25 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log(`Applied font size factor: ${scoreFontSizeFactor}`);
     };
 
-    const increaseFontSize = () => {
+    const increaseFontSize = (e) => { // Accept event object 'e'
         if (scoreFontSizeFactor < MAX_FONT_FACTOR) {
             scoreFontSizeFactor = parseFloat((scoreFontSizeFactor + FONT_SIZE_STEP).toFixed(2)); // Avoid floating point issues
             // Clamp to max just in case
             if (scoreFontSizeFactor > MAX_FONT_FACTOR) scoreFontSizeFactor = MAX_FONT_FACTOR;
             applyFontSizeFactor();
             storeFontSizeFactor(scoreFontSizeFactor);
+            if (e && e.target) e.target.blur(); // Blur the button that was clicked
         }
     };
 
-    const decreaseFontSize = () => {
+    const decreaseFontSize = (e) => { // Accept event object 'e'
          if (scoreFontSizeFactor > MIN_FONT_FACTOR) {
             scoreFontSizeFactor = parseFloat((scoreFontSizeFactor - FONT_SIZE_STEP).toFixed(2)); // Avoid floating point issues
              // Clamp to min just in case
             if (scoreFontSizeFactor < MIN_FONT_FACTOR) scoreFontSizeFactor = MIN_FONT_FACTOR;
             applyFontSizeFactor();
             storeFontSizeFactor(scoreFontSizeFactor);
+            if (e && e.target) e.target.blur(); // Blur the button that was clicked
         }
     };
 
@@ -308,6 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
          validateInputs(); // Re-validate after potentially filling hostname
     });
 
+    // Pass the event object 'e' to the handlers
     increaseFontButton.addEventListener('click', increaseFontSize);
     decreaseFontButton.addEventListener('click', decreaseFontSize);
 
