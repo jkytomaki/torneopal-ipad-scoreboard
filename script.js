@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- App Configuration ---
-    const APP_VERSION = '1.0.1'; // Update this with each new version
+    const APP_VERSION = '1.0.2'; // Update this with each new version
 
     // --- DOM Elements ---
     const startScreen = document.getElementById('start-screen');
