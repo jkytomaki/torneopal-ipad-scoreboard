@@ -42,7 +42,7 @@ html, body {
     align-items: center;
     padding: 20px;
     text-align: center;
-    position: relative; /* Needed for absolute positioning of reload button */
+    position: relative; /* Needed for absolute positioning of controls */
 }
 
 .screen.active {
@@ -193,6 +193,17 @@ html, body {
     bottom: 15px;
     right: 15px;
 }
+
+/* Start screen version display positioning */
+#version-display {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
+    font-size: 0.8em;
+    color: #666;
+    z-index: 10;
+}
+
 
 /* Scoreboard screen bottom controls */
 .controls-bottom-left {

@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- App Configuration ---
+    const APP_VERSION = '1.0.0'; // Update this with each new version
+
+    // --- DOM Elements ---
     const startScreen = document.getElementById('start-screen');
     const scoreboardScreen = document.getElementById('scoreboard-screen');
     const hostnameInput = document.getElementById('hostname-input');
@@ -9,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const decreaseFontButton = document.getElementById('decrease-font-button');
     const reloadButtonStart = document.getElementById('reload-button-start');
     const reloadButtonScore = document.getElementById('reload-button-score');
+    const versionDisplay = document.getElementById('version-display'); // Version element
 
     const scoreAElement = document.getElementById('score-a');
     const teamNameAElement = document.getElementById('team-name-a');
@@ -18,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const startErrorElement = document.getElementById('start-error');
     const scoreErrorElement = document.getElementById('score-error');
 
+    // --- Constants ---
     const POLLING_INTERVAL = 5000; // 5 seconds
     const HOSTNAME_STORAGE_KEY = 'scoreboard_hostname';
     const FONT_SIZE_FACTOR_STORAGE_KEY = 'scoreboard_font_size_factor';
@@ -25,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const MIN_FONT_FACTOR = 0.5;
     const MAX_FONT_FACTOR = 3.0; // Adjust max as needed
 
+    // --- State Variables ---
     let currentMatchId = null;
     let currentHostname = null;
     let pollingIntervalId = null;
@@ -332,6 +339,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Initial Setup ---
+    // Display Version
+    if (versionDisplay) {
+        versionDisplay.textContent = `v${APP_VERSION}`;
+    }
+
     // Load stored values
     const storedHostname = getStoredHostname();
     if (storedHostname) {
