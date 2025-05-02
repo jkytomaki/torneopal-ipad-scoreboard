@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- App Configuration ---
-    const APP_VERSION = '1.0.0'; // Update this with each new version
+    const APP_VERSION = '1.0.1'; // Update this with each new version
 
     // --- DOM Elements ---
     const startScreen = document.getElementById('start-screen');
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const POLLING_INTERVAL = 5000; // 5 seconds
     const HOSTNAME_STORAGE_KEY = 'scoreboard_hostname';
     const FONT_SIZE_FACTOR_STORAGE_KEY = 'scoreboard_font_size_factor';
-    const FONT_SIZE_STEP = 0.05; // Smaller step for finer control
+    const FONT_SIZE_STEP = 0.1; // Smaller step for finer control
     const MIN_FONT_FACTOR = 0.5;
     const MAX_FONT_FACTOR = 3.0; // Adjust max as needed
 
