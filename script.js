@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const startScreen = document.getElementById('start-screen');
     const scoreboardScreen = document.getElementById('scoreboard-screen');
+    const hostnameInput = document.getElementById('hostname-input');
     const matchIdInput = document.getElementById('match-id-input');
     const loadMatchButton = document.getElementById('load-match-button');
     const resetButton = document.getElementById('reset-button');
@@ -13,13 +14,23 @@ document.addEventListener('DOMContentLoaded', () => {
     const startErrorElement = document.getElementById('start-error');
     const scoreErrorElement = document.getElementById('score-error');
 
-    const API_BASE_URL = 'https://torneopal.helsinkibasketballfestival.fi/taso/rest/getScore';
     const POLLING_INTERVAL = 5000; // 5 seconds
+    const HOSTNAME_STORAGE_KEY = 'scoreboard_hostname';
 
     let currentMatchId = null;
+    let currentHostname = null;
     let pollingIntervalId = null;
     let wakeLock = null;
     let retryTimeoutId = null;
+
+    // --- Local Storage ---
+    const getStoredHostname = () => {
+        return localStorage.getItem(HOSTNAME_STORAGE_KEY);
+    };
+
+    const storeHostname = (hostname) => {
+        localStorage.setItem(HOSTNAME_STORAGE_KEY, hostname);
+    };
 
     // --- Screen Wake Lock ---
     const requestWakeLock = async () => {
@@ -63,19 +74,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- API Fetching ---
-    const fetchScore = async (matchId) => {
+    const fetchScore = async (hostname, matchId) => {
         clearTimeout(retryTimeoutId); // Clear any pending retries
         scoreErrorElement.textContent = ''; // Clear previous errors
         scoreErrorElement.style.display = 'none';
 
+        const API_URL = `https://${hostname}/taso/rest/getScore?match_id=${matchId}`;
+        console.log(`Fetching score from: ${API_URL}`);
+
         try {
-            const response = await fetch(`${API_BASE_URL}?match_id=${matchId}`);
+            const response = await fetch(API_URL);
 
             if (!response.ok) {
                 if (response.status === 404) {
-                    throw new Error(`Match not found (ID: ${matchId}).`);
+                    throw new Error(`Match not found (ID: ${matchId} on ${hostname}).`);
                 } else {
-                    throw new Error(`Network error: ${response.status} ${response.statusText}`);
+                     // Try to get text for more specific errors if possible
+                    let errorText = `${response.status} ${response.statusText}`;
+                    try {
+                        const text = await response.text();
+                        if(text) errorText += `: ${text}`;
+                    } catch(e) { /* Ignore if text cannot be read */ }
+                    throw new Error(`Network error: ${errorText}`);
                 }
             }
 
@@ -84,9 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!data || !data.score) {
                  // Handle cases where API returns success but no score data (or unexpected format)
                  // This might happen for valid IDs but non-existent/uninitialized matches
-                console.warn('API returned success but no score data found for match ID:', matchId);
+                console.warn('API returned success but no score data found for match ID:', matchId, 'on host:', hostname);
                 // Treat as 'Match not found' or similar for user feedback
-                throw new Error(`Score data not available for Match ID: ${matchId}.`);
+                throw new Error(`Score data not available for Match ID: ${matchId} on ${hostname}.`);
             }
 
             updateScoreboard(data.score);
@@ -99,8 +119,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Failed to fetch score:', error);
             displayScoreError(`Error: ${error.message} Retrying...`);
-            // Schedule a retry
-            retryTimeoutId = setTimeout(() => fetchScore(matchId), POLLING_INTERVAL);
+            // Schedule a retry using the current hostname and matchId
+            retryTimeoutId = setTimeout(() => fetchScore(currentHostname, currentMatchId), POLLING_INTERVAL);
         }
     };
 
@@ -132,12 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- Polling Control ---
-    const startPolling = (matchId) => {
+    const startPolling = (hostname, matchId) => {
         if (pollingIntervalId) {
             clearInterval(pollingIntervalId); // Clear existing interval if any
         }
-        fetchScore(matchId); // Fetch immediately
-        pollingIntervalId = setInterval(() => fetchScore(matchId), POLLING_INTERVAL);
+        fetchScore(hostname, matchId); // Fetch immediately
+        pollingIntervalId = setInterval(() => fetchScore(hostname, matchId), POLLING_INTERVAL);
     };
 
     const stopPolling = () => {
@@ -148,28 +168,50 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(retryTimeoutId); // Clear any pending retries
     };
 
-    // --- Event Listeners ---
-    matchIdInput.addEventListener('input', () => {
-        const isValid = matchIdInput.value.trim().length > 0 && /^[0-9]+$/.test(matchIdInput.value);
+    // --- Input Validation ---
+    const validateInputs = () => {
+        const hostname = hostnameInput.value.trim();
+        const matchId = matchIdInput.value.trim();
+        // Basic validation: hostname not empty, matchId not empty and contains only digits
+        const isHostnameValid = hostname.length > 0;
+        // Simple hostname validation (does it look like a domain?) - can be improved
+        const looksLikeHostname = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(hostname);
+        const isMatchIdValid = matchId.length > 0 && /^[0-9]+$/.test(matchId);
+
+        const isValid = isHostnameValid && looksLikeHostname && isMatchIdValid;
         loadMatchButton.disabled = !isValid;
+
         if (isValid) {
             displayStartError(''); // Clear error on valid input
+        } else if (hostname.length > 0 && !looksLikeHostname) {
+            displayStartError('Invalid hostname format.');
+        } else if (matchId.length > 0 && !isMatchIdValid) {
+             displayStartError('Invalid Match ID. Please enter numbers only.');
+        } else {
+            displayStartError(''); // Clear if just empty
         }
-    });
+    };
+
+    // --- Event Listeners ---
+    hostnameInput.addEventListener('input', validateInputs);
+    matchIdInput.addEventListener('input', validateInputs);
 
     loadMatchButton.addEventListener('click', async () => {
+        const hostname = hostnameInput.value.trim();
         const matchId = matchIdInput.value.trim();
-        if (!matchId) return;
 
-        // Basic validation before attempting fetch
-        if (!/^[0-9]+$/.test(matchId)) {
-             displayStartError('Invalid Match ID. Please enter numbers only.');
-             return;
+        // Re-validate just in case
+        if (loadMatchButton.disabled) {
+            displayStartError('Please enter a valid hostname and match ID.');
+            return;
         }
 
+        currentHostname = hostname;
         currentMatchId = matchId;
+        storeHostname(currentHostname); // Save hostname to localStorage
+
         displayStartError(''); // Clear previous errors
-        console.log(`Loading match ID: ${currentMatchId}`);
+        console.log(`Loading match ID: ${currentMatchId} from host: ${currentHostname}`);
 
         // Show scoreboard immediately (fetch will update it)
         // Reset scores visually while loading
@@ -180,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await requestWakeLock();
 
         // Start fetching/polling
-        startPolling(currentMatchId);
+        startPolling(currentHostname, currentMatchId);
     });
 
     resetButton.addEventListener('click', async () => {
@@ -188,25 +230,41 @@ document.addEventListener('DOMContentLoaded', () => {
         stopPolling();
         await releaseWakeLock(); // Release wake lock
         currentMatchId = null;
-        matchIdInput.value = ''; // Clear input
-        loadMatchButton.disabled = true; // Disable button
+        currentHostname = null; // Clear current hostname variable
+        // Don't clear hostnameInput here, it will be repopulated from localStorage
+        matchIdInput.value = ''; // Clear match ID input
         displayStartError(''); // Clear errors
         displayScoreError('');
         switchScreen(startScreen);
+        // Re-validate inputs (this will disable the button as matchId is empty)
+        validateInputs();
+        // Ensure hostname field is populated from storage if needed
+        const storedHostname = getStoredHostname();
+         if (storedHostname) {
+            hostnameInput.value = storedHostname;
+         }
+         validateInputs(); // Re-validate after potentially filling hostname
     });
 
-    // Prevent form submission if wrapped in a form
-    matchIdInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
+    // Prevent form submission if wrapped in a form (though not currently in a form)
+    const handleEnter = (e) => {
+         if (e.key === 'Enter') {
             e.preventDefault(); // Prevent default Enter behavior
             if (!loadMatchButton.disabled) {
                 loadMatchButton.click(); // Trigger button click
             }
         }
-    });
+    };
+    hostnameInput.addEventListener('keypress', handleEnter);
+    matchIdInput.addEventListener('keypress', handleEnter);
 
-    // Initial setup
-    loadMatchButton.disabled = true; // Ensure button is disabled initially
+
+    // --- Initial Setup ---
+    const storedHostname = getStoredHostname();
+    if (storedHostname) {
+        hostnameInput.value = storedHostname;
+    }
+    validateInputs(); // Initial validation to set button state
     switchScreen(startScreen); // Show start screen by default
 
 });

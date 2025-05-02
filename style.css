@@ -57,22 +57,39 @@ html, body {
     color: #333;
 }
 
-.input-group {
+.input-container {
     display: flex;
+    flex-direction: column;
+    align-items: stretch; /* Make items stretch to container width */
+    width: 80%; /* Control overall width */
+    max-width: 400px; /* Max width for larger screens */
     margin-bottom: 15px;
 }
 
+.input-group {
+    display: flex;
+    flex-direction: column; /* Stack label and input vertically */
+    margin-bottom: 15px; /* Space between input groups */
+    text-align: left; /* Align labels to the left */
+}
+
+.input-group label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+#hostname-input,
 #match-id-input {
     padding: 15px;
-    font-size: 1.2em;
+    font-size: 1.1em; /* Slightly smaller than button */
     border: 1px solid #ccc;
-    border-radius: 4px 0 0 4px;
-    /* Allow input to shrink on smaller screens */
-    min-width: 100px;
-    flex-grow: 1;
+    border-radius: 4px;
+    width: 100%; /* Make inputs take full width of their container */
     /* Prevent zooming on focus in iOS */
     font-size: 16px;
 }
+
 /* Remove spinners from number input */
 #match-id-input::-webkit-outer-spin-button,
 #match-id-input::-webkit-inner-spin-button {
@@ -88,10 +105,12 @@ html, body {
     padding: 15px 20px;
     font-size: 1.2em;
     border: none;
-    border-radius: 0 4px 4px 0;
+    border-radius: 4px;
     cursor: pointer;
     background-color: var(--button-bg);
     color: var(--button-text);
+    width: 80%; /* Match input container width */
+    max-width: 400px;
     /* Prevent zooming on focus in iOS */
     font-size: 16px;
 }
@@ -183,7 +202,7 @@ html, body {
     transform: none;
     background-color: transparent;
     color: red;
-    margin-top: 0;
+    margin-top: 10px; /* Add some space above button */
 }
 
 /* Landscape adjustments (optional, Flexbox handles basic layout) */
