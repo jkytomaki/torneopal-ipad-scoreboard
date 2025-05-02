@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const FONT_SIZE_FACTOR_STORAGE_KEY = 'scoreboard_font_size_factor';
     const FONT_SIZE_STEP = 0.05; // Smaller step for finer control
     const MIN_FONT_FACTOR = 0.5;
-    const MAX_FONT_FACTOR = 1.5; // Adjust max as needed
+    const MAX_FONT_FACTOR = 3.0; // Adjust max as needed
 
     let currentMatchId = null;
     let currentHostname = null;
