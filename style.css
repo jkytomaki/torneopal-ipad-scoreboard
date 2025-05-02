@@ -42,6 +42,7 @@ html, body {
     align-items: center;
     padding: 20px;
     text-align: center;
+    position: relative; /* Needed for absolute positioning of reload button */
 }
 
 .screen.active {
@@ -112,6 +113,7 @@ html, body {
     color: var(--button-text);
     width: 80%; /* Match input container width */
     max-width: 400px;
+    margin-bottom: 10px; /* Add space below load button */
     /* Prevent zooming on focus in iOS */
     font-size: 16px;
 }
@@ -172,10 +174,9 @@ html, body {
     word-break: break-word; /* Wrap long names */
 }
 
+/* Shared button styles */
+.reload-button,
 #reset-button {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
     padding: 10px 15px;
     font-size: 1em;
     background-color: rgba(255, 255, 255, 0.8);
@@ -186,6 +187,14 @@ html, body {
     z-index: 10;
 }
 
+/* Start screen reload button positioning */
+#reload-button-start {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+}
+
+/* Scoreboard screen bottom controls */
 .controls-bottom-left {
     position: absolute;
     bottom: 15px;
@@ -194,6 +203,16 @@ html, body {
     gap: 10px; /* Space between buttons */
     z-index: 10;
 }
+
+.controls-bottom-right {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    display: flex;
+    gap: 10px; /* Space between buttons */
+    z-index: 10;
+}
+
 
 .font-adjust-button {
     padding: 8px 12px;
@@ -216,7 +235,7 @@ html, body {
     margin-top: 10px;
     font-weight: bold;
     position: absolute; /* Position error messages */
-    bottom: 60px; /* Above reset/font buttons */
+    bottom: 60px; /* Above reset/font/reload buttons */
     left: 50%;
     transform: translateX(-50%);
     z-index: 5;

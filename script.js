@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const resetButton = document.getElementById('reset-button');
     const increaseFontButton = document.getElementById('increase-font-button');
     const decreaseFontButton = document.getElementById('decrease-font-button');
+    const reloadButtonStart = document.getElementById('reload-button-start');
+    const reloadButtonScore = document.getElementById('reload-button-score');
 
     const scoreAElement = document.getElementById('score-a');
     const teamNameAElement = document.getElementById('team-name-a');
@@ -19,9 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const POLLING_INTERVAL = 5000; // 5 seconds
     const HOSTNAME_STORAGE_KEY = 'scoreboard_hostname';
     const FONT_SIZE_FACTOR_STORAGE_KEY = 'scoreboard_font_size_factor';
-    const FONT_SIZE_STEP = 0.1; // Smaller step for finer control
+    const FONT_SIZE_STEP = 0.05; // Smaller step for finer control
     const MIN_FONT_FACTOR = 0.5;
-    const MAX_FONT_FACTOR = 3.0; // Adjust max as needed
+    const MAX_FONT_FACTOR = 1.5; // Adjust max as needed
 
     let currentMatchId = null;
     let currentHostname = null;
@@ -242,6 +244,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Reload Function ---
+    const reloadApp = () => {
+        console.log('Reloading application...');
+        // true forces reload from server, bypassing cache
+        location.reload(true);
+    };
+
     // --- Event Listeners ---
     hostnameInput.addEventListener('input', validateInputs);
     matchIdInput.addEventListener('input', validateInputs);
@@ -301,6 +310,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     increaseFontButton.addEventListener('click', increaseFontSize);
     decreaseFontButton.addEventListener('click', decreaseFontSize);
+
+    reloadButtonStart.addEventListener('click', reloadApp);
+    reloadButtonScore.addEventListener('click', reloadApp);
+
 
     // Prevent form submission if wrapped in a form (though not currently in a form)
     const handleEnter = (e) => {
