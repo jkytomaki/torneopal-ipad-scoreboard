@@ -1,0 +1,199 @@
+:root {
+    --team-a-bg: #0047AB; /* Cobalt Blue */
+    --team-b-bg: #C41E3A; /* Cardinal Red */
+    --text-color: #FFFFFF;
+    --error-color: #FFDD57; /* Yellow */
+    --button-bg: #4CAF50; /* Green */
+    --button-text: #FFFFFF;
+    --disabled-button-bg: #cccccc;
+    --disabled-button-text: #666666;
+    --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Prevent scrolling */
+    font-family: var(--font-family);
+    background-color: #333; /* Fallback background */
+}
+
+#app {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.screen {
+    display: none; /* Hidden by default */
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    text-align: center;
+}
+
+.screen.active {
+    display: flex; /* Show active screen */
+}
+
+/* Start Screen Styles */
+#start-screen {
+    background-color: #f0f0f0;
+}
+
+#start-screen h1 {
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.input-group {
+    display: flex;
+    margin-bottom: 15px;
+}
+
+#match-id-input {
+    padding: 15px;
+    font-size: 1.2em;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    /* Allow input to shrink on smaller screens */
+    min-width: 100px;
+    flex-grow: 1;
+    /* Prevent zooming on focus in iOS */
+    font-size: 16px;
+}
+/* Remove spinners from number input */
+#match-id-input::-webkit-outer-spin-button,
+#match-id-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+#match-id-input[type=number] {
+  -moz-appearance: textfield;
+}
+
+
+#load-match-button {
+    padding: 15px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    background-color: var(--button-bg);
+    color: var(--button-text);
+    /* Prevent zooming on focus in iOS */
+    font-size: 16px;
+}
+
+#load-match-button:disabled {
+    background-color: var(--disabled-button-bg);
+    color: var(--disabled-button-text);
+    cursor: not-allowed;
+}
+
+/* Scoreboard Screen Styles */
+#scoreboard-screen {
+    position: relative; /* For reset button positioning */
+    background-color: #000; /* Default background */
+    color: var(--text-color);
+    justify-content: stretch; /* Stretch children vertically */
+    align-items: stretch; /* Stretch children horizontally */
+    padding: 0; /* Remove padding to allow panels full bleed */
+}
+
+.scoreboard-container {
+    display: flex;
+    flex-grow: 1; /* Take available space */
+    width: 100%;
+    height: 100%; /* Take full height */
+}
+
+.team-panel {
+    flex: 1; /* Each panel takes half the width */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    overflow: hidden; /* Prevent content overflow */
+}
+
+#team-a {
+    background-color: var(--team-a-bg);
+}
+
+#team-b {
+    background-color: var(--team-b-bg);
+}
+
+.score {
+    font-size: clamp(10vw, 25vh, 300px); /* Responsive font size */
+    font-weight: bold;
+    line-height: 1;
+    margin-bottom: 0.1em;
+}
+
+.team-name {
+    font-size: clamp(3vw, 6vh, 60px); /* Responsive font size */
+    font-weight: normal;
+    word-break: break-word; /* Wrap long names */
+}
+
+#reset-button {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    padding: 10px 15px;
+    font-size: 1em;
+    background-color: rgba(255, 255, 255, 0.8);
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.error-message {
+    color: var(--error-color);
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    font-weight: bold;
+    position: absolute; /* Position error messages */
+    bottom: 60px; /* Above reset button */
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+    display: none; /* Hidden by default */
+}
+#start-screen .error-message {
+    position: static; /* Normal position on start screen */
+    transform: none;
+    background-color: transparent;
+    color: red;
+    margin-top: 0;
+}
+
+/* Landscape adjustments (optional, Flexbox handles basic layout) */
+@media (orientation: landscape) {
+    .score {
+       /* Adjust font size if needed for landscape */
+       font-size: clamp(10vh, 25vw, 300px);
+    }
+    .team-name {
+       /* Adjust font size if needed for landscape */
+       font-size: clamp(3vh, 6vw, 60px);
+    }
+}

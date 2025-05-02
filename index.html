@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Basketball Scoreboard</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <!-- iOS specific meta tags for full screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Scoreboard">
+</head>
+<body>
+    <div id="app">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1>Enter Match ID</h1>
+            <div class="input-group">
+                <input type="number" id="match-id-input" placeholder="e.g., 12345" inputmode="numeric" pattern="[0-9]*">
+                <button id="load-match-button" disabled>Load Match</button>
+            </div>
+            <p id="start-error" class="error-message"></p>
+        </div>
+
+        <!-- Scoreboard Screen -->
+        <div id="scoreboard-screen" class="screen">
+            <div class="scoreboard-container">
+                <div id="team-a" class="team-panel">
+                    <div class="score" id="score-a">0</div>
+                    <div class="team-name" id="team-name-a">Team A</div>
+                </div>
+                <div id="team-b" class="team-panel">
+                    <div class="score" id="score-b">0</div>
+                    <div class="team-name" id="team-name-b">Team B</div>
+                </div>
+            </div>
+            <p id="score-error" class="error-message"></p>
+            <button id="reset-button">↺ Reset</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
